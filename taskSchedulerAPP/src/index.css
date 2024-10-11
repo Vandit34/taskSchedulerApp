@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+  background-color: #ca15e6; /* Light background for a soft, task-focused environment */
+  font-family: "Inter", sans-serif; /* Make sure to include this Google Font in your HTML */
+}
+
+input[type="text"] {
+  background-color: #ca15e6c0; /* Signature color to create a cohesive feel */
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1.1rem;
+  transition: box-shadow 0.3s;
+}
+
+input[type="text"]:hover {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+button {
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #6d28d9; /* Darker shade for button hover effect */
+}
+
+.task-item {
+  background-color: #ff90bc; /* Soft pink to match your task color palette */
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.task-item:hover {
+  transform: translateY(-2px);
+}
+
+.task-details {
+  font-weight: 500;
+  color: #004aad; /* Dark blue for better readability */
+}
+
+.checkbox {
+  accent-color: #ff90bc; /* Color accent for checkboxes */
+}
+
+.chakra-stack .css-1o049bx {
+  border: 0.09rem solid black;
+  border-radius: 0.5rem;
+}
+
+.css-85oj6w
+{
+    padding-inline-start: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.css-19jssui
+{
+    padding-inline-start:1rem
+}
+
+
