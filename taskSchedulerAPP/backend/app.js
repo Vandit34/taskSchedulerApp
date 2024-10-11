@@ -195,27 +195,20 @@ app.post('/schedule-task', async (req, res) => {
 
 // Fetch Task Route
 app.get('/fetch-task', async (req, res) => {
-  console.log('I am in fetch task 1')
   const { userId } = req.query // Extract userId from query parameters
-  console.log('I am in fetch task 2')
 
   if (!userId) {
-    console.log('I am in fetch task 3')
     return res.status(401).json({ message: 'Unauthorized' })
   } else {
-    console.log('I am in fetch task 4')
     console.log('User ID:', userId)
   }
 
   try {
     const user = await User.findById(userId)
-    console.log('Jai shree ram 1')
 
     if (!user) {
-      console.log('Jai shree ram 2')
       return res.status(404).json({ message: 'User not found' })
     }
-    console.log('Jai shree ram 3')
 
     return res.status(200).json({ tasks: user.tasks })
   } catch (err) {

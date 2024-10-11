@@ -24,32 +24,38 @@ const TaskScheduler = () => {
   // Function to add a task
   const handleAddTask = async () => {
     if (taskText) {
-      setTasks([
-        ...tasks,
-        { text: taskText, priority: priority, completed: false }
-      ])
+      const newTask = { text: taskText, priority, completed: false }
 
-      const response = await axios.post('http://localhost:5000/schedule-task', {
-        userId: localStorage.getItem('userId'),
-        userPrompt: taskText
-      })
+      // Save the task in local state
+      setTasks([...tasks, newTask])
 
-      if (response && response.data && response.data.message) {
-        console.log(response.data.message)
+      try {
+        const response = await axios.post('http://localhost:5000/schedule-task', {
+          userId: localStorage.getItem('userId'),
+          userPrompt: taskText
+        })
+
+        if (response && response.data && response.data.message) {
+          console.log(response.data.message)
+        }
+
+        // Clear the input fields
+        setTaskText('')
+        setPriority(priority)
+        toast({
+          title: 'Task added!',
+          description: 'Your task has been added successfully.',
+          status: 'success',
+          duration: 2000,
+          isClosable: true
+        })
+      } catch (error) {
+        console.error('Error adding task:', error)
       }
-
-      setTaskText('')
-      setPriority('Medium')
-      toast({
-        title: 'Task added!',
-        description: 'Your task has been added successfully.',
-        status: 'success',
-        duration: 2000,
-        isClosable: true
-      })
     }
   }
 
+  // Fetch tasks on initial render
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,9 +63,9 @@ const TaskScheduler = () => {
         if (userId) {
           const response = await axios.get(
             `http://localhost:5000/fetch-task?userId=${userId}`
-          ) // Pass userId as query param
-          if (response && response.data) {
-            setTasks(response.data.tasks) // Update tasks only once with fetched data
+          )
+          if (response && response.data && response.data.tasks) {
+            setTasks(response.data.tasks)
           }
         } else {
           console.error('User ID not found in localStorage')
@@ -70,11 +76,18 @@ const TaskScheduler = () => {
     }
 
     fetchData()
-    // Only trigger on initial render or when taskText changes, if relevant
-  }, [taskText]) // Remove `tasks` to avoid infinite loop
+  }, [])
+
+  // Handle task completion toggle
+  const handleCheckboxChange = (index) => {
+    const updatedTasks = tasks.map((task, idx) =>
+      idx === index ? { ...task, completed: !task.completed } : task
+    )
+    setTasks(updatedTasks)
+  }
 
   // Function to determine tag color based on priority
-  const getTagColor = priority => {
+  const getTagColor = (priority) => {
     switch (priority) {
       case 'Urgent':
         return { color: 'white', bg: '#D8000C' } // Red
@@ -99,9 +112,10 @@ const TaskScheduler = () => {
       boxShadow='md'
     >
       <VStack spacing='20px' align='start' width='100%'>
+        {/* Task Input Field */}
         <Input
           value={taskText}
-          onChange={e => setTaskText(e.target.value)}
+          onChange={(e) => setTaskText(e.target.value)}
           placeholder='Add a new task...'
           focusBorderColor='#FF6F61'
           variant='outline'
@@ -117,64 +131,47 @@ const TaskScheduler = () => {
         />
 
         <HStack spacing='15px' width='100%'>
+          {/* Priority Select */}
           <Select
             value={priority}
-            onChange={e => setPriority(e.target.value)}
+            onChange={(e) => setPriority(e.target.value)}
             placeholder='Select Priority'
             size='lg'
             variant='outline'
             focusBorderColor='#FF6F61'
             width='100%'
-            bg='#F0F4F8' // Soft background color for the Select
-            borderColor='#FF3D00' // Border color matching the theme
-            borderWidth='2px' // Border thickness
-            borderRadius='10px' // Increased border radius for a smoother look
-            color='black' // Text color
-            fontWeight='bold' // Bold text for emphasis
-            _placeholder={{ color: '#B0B0B0', fontWeight: 'normal' }} // Placeholder color
+            bg='#F0F4F8'
+            borderColor='#FF3D00'
+            borderWidth='2px'
+            borderRadius='10px'
+            color='black'
+            fontWeight='bold'
+            _placeholder={{ color: '#B0B0B0', fontWeight: 'normal' }}
             _focus={{
-              borderColor: '#FF6F61', // Change border color on focus
-              boxShadow: '0 0 0 1px #FF6F61' // Add shadow on focus
+              borderColor: '#FF6F61',
+              boxShadow: '0 0 0 1px #FF6F61'
             }}
             _hover={{
-              borderColor: '#FF6F61', // Change border color on hover
-              bg: 'linear-gradient(90deg, #FF6F61 0%, #FF3D00 100%)' // Gradient background on hover
+              borderColor: '#FF6F61',
+              bg: 'linear-gradient(90deg, #FF6F61 0%, #FF3D00 100%)'
             }}
-            _option={{
-              bg: '#1E1E24', // Background color of dropdown options
-              color: 'white', // Text color of dropdown options
-              _hover: {
-                color: 'white' // Ensure text remains readable on hover
-              }
-            }}
-            margin='16px 0' // Add vertical margin (adjust as needed)
+            margin='16px 0'
           >
-            <option
-              value='Urgent'
-              style={{ backgroundColor: '#D8000C', color: 'white' }}
-            >
+            <option value='Urgent' style={{ backgroundColor: '#D8000C', color: 'white' }}>
               Urgent
             </option>
-            <option
-              value='High'
-              style={{ backgroundColor: '#FFA500', color: 'white' }}
-            >
+            <option value='High' style={{ backgroundColor: '#FFA500', color: 'white' }}>
               High
             </option>
-            <option
-              value='Medium'
-              style={{ backgroundColor: '#FFD700', color: 'black' }}
-            >
+            <option value='Medium' style={{ backgroundColor: '#FFD700', color: 'black' }}>
               Medium
             </option>
-            <option
-              value='Low'
-              style={{ backgroundColor: '#4CAF50', color: 'white' }}
-            >
+            <option value='Low' style={{ backgroundColor: '#4CAF50', color: 'white' }}>
               Low
             </option>
           </Select>
 
+          {/* Add Task Button */}
           <IconButton
             icon={<FaPaperPlane />}
             bgColor='#FF3D00'
@@ -188,6 +185,7 @@ const TaskScheduler = () => {
         </HStack>
         <Divider />
 
+        {/* Task List */}
         <VStack align='stretch' spacing='15px' width='100%'>
           {tasks.map((task, index) => {
             console.log(task)
@@ -232,10 +230,10 @@ const TaskScheduler = () => {
                 >
                   {task.text}
                   <br />
-                  {/* Include taskType and scheduleTime formatting here */}
-                  {`Task scheduled: ${task.type} at ${new Date(
-                    task.time
-                  ).toLocaleTimeString()}`}
+                  {/* Task type and scheduled time (if available) */}
+                  {task.type && task.time && (
+                    `Task scheduled: ${task.type} at ${new Date(task.time).toLocaleTimeString()}`
+                  )}
                 </Text>
 
                 <Tag
@@ -248,7 +246,7 @@ const TaskScheduler = () => {
                   py='2'
                   fontWeight='bold'
                 >
-                  {task.priority}
+                  {}
                 </Tag>
               </HStack>
             )
